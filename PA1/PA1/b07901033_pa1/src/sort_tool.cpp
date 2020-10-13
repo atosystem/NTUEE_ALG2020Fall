@@ -27,11 +27,11 @@ void SortTool::InsertionSort(vector<int>& data) {
             }
         }
 
-        auto rm_it= data.begin() + i;
+        std::vector<int>::iterator rm_it= data.begin() + i;
         
         data.erase(rm_it);
         
-        auto ins_it= data.begin() + x+1;
+        std::vector<int>::iterator ins_it= data.begin() + x+1;
 
         data.insert(ins_it,current_item);
     }
