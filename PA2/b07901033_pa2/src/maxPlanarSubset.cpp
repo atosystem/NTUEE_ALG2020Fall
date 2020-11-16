@@ -1,6 +1,7 @@
 #include "maxPlanarSubset.h"
 #include <iostream>
 #include <algorithm>
+#include <stack>
 Mps::Mps()
 {
     // chords_k.reserve(N);
@@ -55,7 +56,7 @@ int Mps::aux_BS(int* arr,int v,int s)
     return -1;
 }
 
-int Mps::compute(std::ifstream& f)
+int Mps::compute(std::ifstream& f , std::ofstream& out_f)
 {
 
     if(SHOW_STEP)
@@ -68,15 +69,16 @@ int Mps::compute(std::ifstream& f)
 
     if(SHOW_STEP)
         std::cout<<"declare m_table"<<std::endl;
-    int m_table[input_sizeN*2][input_sizeN*2];
+    int m_table[input_sizeN*2][input_sizeN*2][1+1+2+2];
+    // format : 1(max mps)+1(add chord)+2(sub porblem1)+2(sub porblem2)
 
     if(SHOW_STEP)
         std::cout<<"declare chords_k"<<std::endl;
     int chords_k[input_sizeN*2];
 
-    if(SHOW_STEP)
-        std::cout<<"declare dp_mem"<<std::endl;
-    int dp_mem[input_sizeN*2][input_sizeN*2][input_sizeN];
+    // if(SHOW_STEP)
+        // std::cout<<"declare dp_mem"<<std::endl;
+    // int dp_mem[input_sizeN*2][input_sizeN*2][input_sizeN];
     
     for (int i=0;i<input_sizeN;++i)
     {
@@ -117,8 +119,25 @@ int Mps::compute(std::ifstream& f)
     //     chords_a[i] = chords_k[i];
     //     chords_b[i] = chords_j[i];
     // }
+    // init m_table
+    // for (int i=0;i<2*input_sizeN;++i)
+    //     m_table[i][i][0] = 0;
+
+    // format : 1(max mps)+1(add chord)+2(sub porblem1)+2(sub porblem2)
     for (int i=0;i<2*input_sizeN;++i)
-        m_table[i][i] = 0;
+        for (int j=0;j<2*input_sizeN;++j)
+        {
+            m_table[i][j][0] = 0;
+
+            m_table[i][j][1] = -1;
+
+            m_table[i][j][2] = -1;
+            m_table[i][j][3] = -1;
+
+            m_table[i][j][4] = -1;
+            m_table[i][j][5] = -1;
+
+        }
 
     for (int d=1;d<input_sizeN*2;++d)
     {
@@ -136,13 +155,29 @@ int Mps::compute(std::ifstream& f)
                 // case kj=ij
                 if (DEBUG)
                     std::cout<<"case kj=ij"<<std::endl;
-                m_table[i][j] = m_table[i+1][j-1]+1;
+                m_table[i][j][0] = m_table[i+1][j-1][0]+1;
+                
+                // add new chord record
+                // format : 1(max mps)+1(add chord)+2(sub porblem1)+2(sub porblem2)
+                m_table[i][j][1] = i;
+
+                m_table[i][j][2] = i+1;
+                m_table[i][j][3] = j-1;
             }else if (chords_k[j] > j || chords_k[j] < i)
             {
                 if (DEBUG)
                     std::cout<<"case k not in [i,j]"<<std::endl;
                 // case k not in [i,j]
-                m_table[i][j] = m_table[i][j-1]; 
+                m_table[i][j][0] = m_table[i][j-1][0]; 
+                
+
+                // add new chord record
+                // format : 1(max mps)+1(add chord)+2(sub porblem1)+2(sub porblem2)
+                m_table[i][j][1] = -1;
+
+                m_table[i][j][2] = i;
+                m_table[i][j][3] = j-1;
+
                 if (DEBUG)
                     std::cout<<"done"<<std::endl;
             }else{
@@ -150,19 +185,108 @@ int Mps::compute(std::ifstream& f)
                 if (DEBUG)
                     std::cout<<"case k in [i,j]"<<std::endl;
 
-                int tmp = m_table[i][chords_k[j]-1] + 1 + m_table[chords_k[j]+1][j-1];
-                if (m_table[i][j-1]<tmp)
+                int tmp = m_table[i][chords_k[j]-1][0] + 1 + m_table[chords_k[j]+1][j-1][0];
+                if (m_table[i][j-1][0]<tmp)
                 {
-                    m_table[i][j] = tmp;
+                    m_table[i][j][0] = tmp;
+
+                    // add new chord record
+                    // format : 1(max mps)+1(add chord)+2(sub porblem1)+2(sub porblem2)
+                    m_table[i][j][1] = chords_k[j];
+
+                    m_table[i][j][2] = i;
+                    m_table[i][j][3] = chords_k[j]-1;
+
+                    m_table[i][j][4] = chords_k[j]+1;
+                    m_table[i][j][5] = j-1;
+
                 }else
                 {
-                    m_table[i][j] = m_table[i][j-1];
+                    m_table[i][j][0] = m_table[i][j-1][0];
+                    // add new chord record
+                    // format : 1(max mps)+1(add chord)+2(sub porblem1)+2(sub porblem2)
+                    m_table[i][j][1] = -1;
+                    m_table[i][j][2] = i;
+                    m_table[i][j][3] = j-1;
                 }
             }
             
             
         }
     }
-    return m_table[0][2*input_sizeN-1];
+
+    if (SHOW_STEP)
+        std::cout<<"Done computing"<<std::endl;
+
+
+    
+
+    int result_chords[m_table[0][2*input_sizeN-1][0]];
+    int ind = 0;
+
+    
+
+    std::stack< std::pair<int,int> > tmp_stack;
+
+    std::pair<int,int> p ;
+    p.first = 0;
+    p.second = 2*input_sizeN-1;
+
+    
+    
+    tmp_stack.push(p);
+    while(!tmp_stack.empty())
+    {
+        
+        // std::pair<int,int> p = tmp_stack.top();
+        p = tmp_stack.top();
+        tmp_stack.pop();
+        if (DEBUG)
+            std::cout<<"check "<<p.first<<" "<<p.second<<std::endl;
+
+        // add new chord to array
+        if (m_table[p.first][p.second][1]!=-1)
+        {
+            if (DEBUG)
+                std::cout<<"add chord "<<m_table[p.first][p.second][1]<<std::endl;
+            result_chords[ind] = m_table[p.first][p.second][1];
+            ++ind;
+        }
+
+        if (m_table[p.first][p.second][2]!=-1)
+        {
+            std::pair<int,int> pp;
+            pp.first = m_table[p.first][p.second][2];
+            pp.second = m_table[p.first][p.second][3];
+            if (DEBUG)
+                std::cout<<"add subp ("<<pp.first<<","<<pp.second<<")";
+            tmp_stack.push(pp);
+            if (m_table[p.first][p.second][4]!=-1)
+            {
+                pp.first = m_table[p.first][p.second][4];
+                pp.second = m_table[p.first][p.second][5];
+                if (DEBUG)
+                    std::cout<<" ("<<pp.first<<","<<pp.second<<")";
+                tmp_stack.push(pp);
+            }
+            if (DEBUG)
+                std::cout<<std::endl;
+        }
+        
+    }
+    if (DEBUG)
+        std::cout<<"end travel size = "<<ind<<std::endl;    
+    std::sort(result_chords,result_chords+m_table[0][2*input_sizeN-1][0]);
+    if (SHOW_STEP)
+        std::cout<<"sort done"<<std::endl;    
+
+    out_f<<m_table[0][2*input_sizeN-1][0]<<std::endl;
+
+    for (int i=0;i<m_table[0][2*input_sizeN-1][0];++i)
+    {
+        out_f<<result_chords[i]<<" "<<chords_k[result_chords[i]]<<std::endl;
+    }
+
+    return m_table[0][2*input_sizeN-1][0];
 
 }

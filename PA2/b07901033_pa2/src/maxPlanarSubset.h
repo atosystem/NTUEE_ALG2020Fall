@@ -11,7 +11,7 @@ class Mps
     public:
         Mps();
         bool parseFile(std::ifstream& f);
-        int compute(std::ifstream& f);
+        int compute(std::ifstream& f , std::ofstream& out_f);
 
         int aux_BS(int* arr,int v,int s);
     private:
