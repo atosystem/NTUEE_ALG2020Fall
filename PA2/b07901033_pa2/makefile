@@ -13,10 +13,10 @@ all	: bin/mps
 	@echo -n ""
 
 # optimized version
-bin/mps	: main.o
-			$(CC) $(OPTFLAGS) main.o -o bin/mps
-main.o 	   	: src/main.cpp 
-			$(CC) $(CFLAGS) $< -o $@
+bin/mps	: src/main.cpp 
+			$(CC) $(OPTFLAGS) src/main.cpp  -o bin/mps
+# main.o 	   	: src/main.cpp 
+# 			$(CC) $(CFLAGS) $< -o $@
 # maxPlanarSubset.o	: src/maxPlanarSubset.cpp src/maxPlanarSubset.h
 # 			$(CC) $(CFLAGS) $(OPTFLAGS) $< -o $@
 
