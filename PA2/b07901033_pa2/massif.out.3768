@@ -1,0 +1,35 @@
+desc: (none)
+cmd: bin/mps inputs/100000.in outputs/100000.out --main-stacksize=16777216
+time_unit: i
+#-----------
+snapshot=0
+#-----------
+time=0
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=1
+#-----------
+time=3087591
+mem_heap_B=72704
+mem_heap_extra_B=8
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=2
+#-----------
+time=3292306
+mem_heap_B=73272
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=3
+#-----------
+time=3296084
+mem_heap_B=81464
+mem_heap_extra_B=32
+mem_stacks_B=0
+heap_tree=empty
