@@ -23,8 +23,9 @@ inline int ij2index(int i,int j)
     }else{
         if ((j*(j-1))/2+i+1>input_sizeN*(2*input_sizeN-1))
         {
-            std::cerr<<"Error : m_table out of bound"<<std::endl;
-            exit(1);
+            std::cerr<<"Error : m_table out of bound (i,j)="<<i<<" "<<j<<std::endl;
+			std::cerr<<"m_index = "<<(j*(j-1))/2+i+1<<"  max = "<<input_sizeN*(2*input_sizeN-1)<<std::endl;
+			exit(1);
         }else
         {
             return (j*(j-1))/2+i+1;
