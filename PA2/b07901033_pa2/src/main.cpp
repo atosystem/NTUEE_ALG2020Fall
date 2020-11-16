@@ -7,9 +7,9 @@
 #define DEBUG 0
 #define SHOW_STEP 1
 
-int input_sizeN;
+unsigned long long int input_sizeN;
 
-inline int ij2index(int i,int j)
+inline unsigned long long int ij2index(unsigned long long int i,unsigned long long int j)
 {
     if (i>j)
     {
