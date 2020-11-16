@@ -4,8 +4,7 @@
 #include <vector>
 #include <fstream>
 
-#define DEBUG 0
-#define SHOW_STEP 1
+
 class Mps
 {
     public:

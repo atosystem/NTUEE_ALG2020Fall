@@ -7,18 +7,18 @@ ARFLAGS = rcv
 # -g option is for debugging version
 # -O2 option is for optimized version
 DBGFLAGS = -g -D_DEBUG_ON_
-OPTFLAGS = -O2
+OPTFLAGS = -O3
 
 all	: bin/mps
 	@echo -n ""
 
 # optimized version
-bin/mps	: maxPlanarSubset.o main.o
-			$(CC) $(OPTFLAGS) maxPlanarSubset.o main.o -o bin/mps
+bin/mps	: main.o
+			$(CC) $(OPTFLAGS) main.o -o bin/mps
 main.o 	   	: src/main.cpp 
 			$(CC) $(CFLAGS) $< -o $@
-maxPlanarSubset.o	: src/maxPlanarSubset.cpp src/maxPlanarSubset.h
-			$(CC) $(CFLAGS) $(OPTFLAGS) $< -o $@
+# maxPlanarSubset.o	: src/maxPlanarSubset.cpp src/maxPlanarSubset.h
+# 			$(CC) $(CFLAGS) $(OPTFLAGS) $< -o $@
 
 # DEBUG Version
 dbg : bin/mps_dbg
