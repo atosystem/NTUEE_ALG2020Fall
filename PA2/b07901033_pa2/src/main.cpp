@@ -7,6 +7,8 @@
 #define DEBUG 0
 #define SHOW_STEP 1
 
+int input_sizeN;
+
 inline int ij2index(int i,int j)
 {
     if (i>j)
@@ -19,7 +21,15 @@ inline int ij2index(int i,int j)
     {
         return 0;
     }else{
-        return (j*(j-1))/2+i+1;
+        if ((j*(j-1))/2+i+1>input_sizeN*(2*input_sizeN-1))
+        {
+            std::cerr<<"Error : m_table out of bound"<<std::endl;
+            exit(1);
+        }else
+        {
+            return (j*(j-1))/2+i+1;
+
+        }
     }
 }
 
@@ -32,7 +42,7 @@ int main(int argc, char* argv[])
     if(SHOW_STEP)
         std::cout<<"Read file start"<<std::endl;
 
-    int input_sizeN;
+    
     infile>>input_sizeN;
     input_sizeN = input_sizeN/2;
 
@@ -41,7 +51,7 @@ int main(int argc, char* argv[])
     if(SHOW_STEP)
         std::cout<<"declare m_table"<<std::endl;
     
-    int m_table[(input_sizeN-1)*(2*input_sizeN-1)+1];
+    int m_table[input_sizeN*(2*input_sizeN-1)+1];
     m_table[0] = 0;
 
 
@@ -107,6 +117,7 @@ int main(int argc, char* argv[])
 
     for (int d=1;d<input_sizeN*2;++d)
     {
+        // std::cout<<"d= "<<d<<"  "<<input_sizeN*2<<::std::endl;
         for (int i = 0;i < (input_sizeN*2)-d;++i)
         {
             int j = i + d;
@@ -118,7 +129,7 @@ int main(int argc, char* argv[])
             // chords_k[j];
             if (chords_k[j] == i)
             {
-                // std::cout<<"asdasdasda"<<std::endl;
+
                 // case kj=ij
                 if (DEBUG>1)
                     std::cout<<"case kj=ij"<<std::endl;
@@ -165,7 +176,7 @@ int main(int argc, char* argv[])
                     if (DEBUG>1)
                         std::cout<<"case A"<<std::endl;
                     
-                    // std::cout<<"asdasdasda "<<tmp<<std::endl;
+
                     m_table[ij2index(i,j)] = tmp;
                     // m_table[i][j][0] = tmp;
 
@@ -185,11 +196,6 @@ int main(int argc, char* argv[])
                         std::cout<<"case B"<<std::endl;
                     m_table[ij2index(i,j)] = m_table[ij2index(i,j-1)];
                     // m_table[i][j][0] = m_table[i][j-1][0];
-                    // add new chord record
-                    // format : 1(max mps)+1(add chord)+2(sub porblem1)+2(sub porblem2)
-                    // m_table[i][j][1] = -1;
-                    // m_table[i][j][2] = i;
-                    // m_table[i][j][3] = j-1;
                 }
             }
             
@@ -315,9 +321,9 @@ int main(int argc, char* argv[])
 
     
     std::ofstream outfile(argv[2]);
-    std::cout<<"asd"<<std::endl;
 
-    // outfile<<m_table[ij2index(0,2*input_sizeN-1)]<<std::endl;
+
+    outfile<<m_table[ij2index(0,2*input_sizeN-1)]<<std::endl;
 
     for (int i=0;i<m_table[ij2index(0,2*input_sizeN-1)];++i)
     {
