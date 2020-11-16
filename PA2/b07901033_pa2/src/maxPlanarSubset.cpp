@@ -73,6 +73,10 @@ int Mps::compute(std::ifstream& f)
     if(SHOW_STEP)
         std::cout<<"declare chords_k"<<std::endl;
     int chords_k[input_sizeN*2];
+
+    if(SHOW_STEP)
+        std::cout<<"declare dp_mem"<<std::endl;
+    int dp_mem[input_sizeN*2][input_sizeN*2][input_sizeN];
     
     for (int i=0;i<input_sizeN;++i)
     {
@@ -83,7 +87,7 @@ int Mps::compute(std::ifstream& f)
     }
 
     if(SHOW_STEP)
-        std::cout<<"Done file parseing"<<std::endl;
+        std::cout<<"Done file parsing"<<std::endl;
 
     // f>>x;
     // if (x!=0)
