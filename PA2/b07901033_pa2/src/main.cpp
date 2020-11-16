@@ -7,11 +7,12 @@
 #define DEBUG 0
 #define SHOW_STEP 1
 
-int ij2index(int i,int j)
+inline int ij2index(int i,int j)
 {
     if (i>j)
     {
         std::cerr<<"Error : i>j"<<std::endl;
+        exit(1);
         return -1;
     }
     if (i==j)
@@ -27,8 +28,7 @@ int main(int argc, char* argv[])
     std::cout<<"Main"<<std::endl;
     // int aa[] = {1,4,23,37,45,56,68};
     std::ifstream infile(argv[1]);
-    std::ofstream outfile(argv[2]);
-
+    
     if(SHOW_STEP)
         std::cout<<"Read file start"<<std::endl;
 
@@ -60,6 +60,7 @@ int main(int argc, char* argv[])
         chords_k[a] = b;
         chords_k[b] = a;
     }
+    infile.close();
 
     if(SHOW_STEP)
         std::cout<<"Done file parsing"<<std::endl;
@@ -110,18 +111,22 @@ int main(int argc, char* argv[])
         {
             int j = i + d;
 
-            if (DEBUG)
+            if (DEBUG>1)
                 std::cout<<"Now processing N= "<<input_sizeN<<" i = "<<i<<" j = "<<j<<" k = "<<chords_k[j]<<std::endl;
             
             // check which case
             // chords_k[j];
             if (chords_k[j] == i)
             {
+                // std::cout<<"asdasdasda"<<std::endl;
                 // case kj=ij
-                if (DEBUG)
+                if (DEBUG>1)
                     std::cout<<"case kj=ij"<<std::endl;
 
-                m_table[ij2index(i,j)] = m_table[ij2index(i+1,j-1)] + 1;
+                if (i==j-1)
+                    m_table[ij2index(i,j)] = 0;
+                else
+                    m_table[ij2index(i,j)] = m_table[ij2index(i+1,j-1)] + 1;
                 
                 // add new chord record
                 // format : 1(max mps)+1(add chord)+2(sub porblem1)+2(sub porblem2)
@@ -131,7 +136,7 @@ int main(int argc, char* argv[])
                 // m_table[i][j][3] = j-1;
             }else if (chords_k[j] > j || chords_k[j] < i)
             {
-                if (DEBUG)
+                if (DEBUG>1)
                     std::cout<<"case k not in [i,j]"<<std::endl;
                 // case k not in [i,j]
                 m_table[ij2index(i,j)] = m_table[ij2index(i,j-1)];
@@ -145,19 +150,22 @@ int main(int argc, char* argv[])
                 // m_table[i][j][2] = i;
                 // m_table[i][j][3] = j-1;
 
-                if (DEBUG)
+                if (DEBUG>1)
                     std::cout<<"done"<<std::endl;
             }else{
                 // case k in [i,j]
-                if (DEBUG)
+                if (DEBUG>1)
                     std::cout<<"case k in [i,j]"<<std::endl;
                 int tmp = m_table[ij2index(i,chords_k[j]-1)] + 1 + m_table[ij2index(chords_k[j]+1,j-1)];
                 // int tmp = m_table[i][chords_k[j]-1][0] + 1 + m_table[chords_k[j]+1][j-1][0];
                 // if (m_table[i][j-1][0]<tmp)
                 if (m_table[ij2index(i,j-1)]<tmp)
                 {
-                    if (DEBUG)
+                    
+                    if (DEBUG>1)
                         std::cout<<"case A"<<std::endl;
+                    
+                    // std::cout<<"asdasdasda "<<tmp<<std::endl;
                     m_table[ij2index(i,j)] = tmp;
                     // m_table[i][j][0] = tmp;
 
@@ -173,7 +181,7 @@ int main(int argc, char* argv[])
 
                 }else
                 {
-                    if (DEBUG)
+                    if (DEBUG>1)
                         std::cout<<"case B"<<std::endl;
                     m_table[ij2index(i,j)] = m_table[ij2index(i,j-1)];
                     // m_table[i][j][0] = m_table[i][j-1][0];
@@ -190,7 +198,7 @@ int main(int argc, char* argv[])
     }
 
     if (SHOW_STEP)
-        std::cout<<"Done computing"<<std::endl;
+        std::cout<<"Done computing "<<input_sizeN*2<<std::endl;
 
     if (DEBUG)
         for (int d=1;d<input_sizeN*2;++d)
@@ -303,9 +311,13 @@ int main(int argc, char* argv[])
         std::cout<<"end travel size = "<<ind<<std::endl;    
     std::sort(result_chords,result_chords+m_table[ij2index(0,2*input_sizeN-1)]);
     if (SHOW_STEP)
-        std::cout<<"sort done"<<std::endl;    
+        std::cout<<"sort done ans = "<<m_table[ij2index(0,2*input_sizeN-1)]<<std::endl;    
 
-    outfile<<m_table[ij2index(0,2*input_sizeN-1)]<<std::endl;
+    
+    std::ofstream outfile(argv[2]);
+    std::cout<<"asd"<<std::endl;
+
+    // outfile<<m_table[ij2index(0,2*input_sizeN-1)]<<std::endl;
 
     for (int i=0;i<m_table[ij2index(0,2*input_sizeN-1)];++i)
     {
@@ -314,6 +326,6 @@ int main(int argc, char* argv[])
 
     // m_table[0][2*input_sizeN-1][0];
 
-    infile.close();
+
     outfile.close();
 }
