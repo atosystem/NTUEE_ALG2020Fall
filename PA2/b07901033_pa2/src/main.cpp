@@ -85,7 +85,7 @@ int main(int argc, char* argv[])
 
 
 
-    if (DEBUG)
+    if (SHOW_STEP)
         std::cout<<"Compute start"<<std::endl;
     
 
