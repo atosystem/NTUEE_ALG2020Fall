@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <fstream>
 
+#include <vector>
+
 #define DEBUG 0
 #define SHOW_STEP 1
 
@@ -52,7 +54,9 @@ int main(int argc, char* argv[])
     if(SHOW_STEP)
         std::cout<<"declare m_table"<<std::endl;
     
-    int m_table[input_sizeN*(2*input_sizeN-1)+1];
+    std::vector<int> m_table;
+    m_table.reserve(input_sizeN*(2*input_sizeN-1)+1);
+    // int m_table[input_sizeN*(2*input_sizeN-1)+1];
     m_table[0] = 0;
 
 
