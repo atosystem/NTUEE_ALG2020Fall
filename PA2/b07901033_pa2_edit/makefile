@@ -14,7 +14,7 @@ all	: bin/mps
 
 # optimized version
 bin/mps	: src/main.cpp 
-			$(CC) $(OPTFLAGS) src/main.cpp  -o bin/mps
+			$(CC) $(OPTFLAGS) src/main_stable.cpp  -o bin/mps
 # main.o 	   	: src/main.cpp 
 # 			$(CC) $(CFLAGS) $< -o $@
 # maxPlanarSubset.o	: src/maxPlanarSubset.cpp src/maxPlanarSubset.h
