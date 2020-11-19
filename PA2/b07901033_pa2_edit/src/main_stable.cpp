@@ -14,11 +14,13 @@ unsigned long long int input_sizeN;
 
 static inline unsigned long long int ij2index(unsigned long long int i,unsigned long long int j)
 {
+
     if (i>j)
     {
-        std::cerr<<"Error : i>j"<<std::endl;
-        exit(1);
-        return -1;
+        // std::cerr<<"Error : i>j"<<std::endl;
+        // std::cerr<<"(i,j)=("<<i<<","<<j<<")"<<std::endl;
+        // exit(1);
+        return 0;
     }
     if (i==j)
     {
@@ -96,14 +98,14 @@ int main(int argc, char* argv[])
         std::cout<<"Compute start"<<std::endl;
     
 
-    if (DEBUG)
-    {
-        std::cout<<"chord_k list"<<std::endl;
-        for (int i=0;i<input_sizeN*2;++i)
-            std::cout<<chords_k[i]<<std::endl;
+    // if (DEBUG)
+    // {
+    //     std::cout<<"chord_k list"<<std::endl;
+    //     for (int i=0;i<input_sizeN*2;++i)
+    //         std::cout<<chords_k[i]<<std::endl;
 
-        std::cout<<std::endl;
-    }
+    //     std::cout<<std::endl;
+    // }
     
     
     // for (int i=0;i<input_sizeN;++i)
@@ -143,7 +145,7 @@ int main(int argc, char* argv[])
                     std::cout<<"case kj=ij"<<std::endl;
 
                 if (i==j-1)
-                    m_table[ij2index(i,j)] = 0;
+                    m_table[ij2index(i,j)] = 1;
                 else
                     m_table[ij2index(i,j)] = m_table[ij2index(i+1,j-1)] + 1;
                 
@@ -152,7 +154,12 @@ int main(int argc, char* argv[])
                 // m_table[i][j][1] = i;
 
                 // m_table[i][j][2] = i+1;
+
                 // m_table[i][j][3] = j-1;
+
+                if (DEBUG>1)
+                    std::cout<<"done filling "<<m_table[ij2index(i,j)]<<std::endl;
+
             }else if (chords_k[j] > j || chords_k[j] < i)
             {
                 if (DEBUG>1)
@@ -170,7 +177,7 @@ int main(int argc, char* argv[])
                 // m_table[i][j][3] = j-1;
 
                 if (DEBUG>1)
-                    std::cout<<"done"<<std::endl;
+                    std::cout<<"done filling "<<m_table[ij2index(i,j)]<<std::endl;
             }else{
                 // case k in [i,j]
                 if (DEBUG>1)
@@ -197,6 +204,8 @@ int main(int argc, char* argv[])
 
                     // m_table[i][j][4] = chords_k[j]+1;
                     // m_table[i][j][5] = j-1;
+                    if (DEBUG>1)
+                        std::cout<<"done filling "<<m_table[ij2index(i,j)]<<std::endl;
 
                 }else
                 {
@@ -204,6 +213,9 @@ int main(int argc, char* argv[])
                         std::cout<<"case B"<<std::endl;
                     m_table[ij2index(i,j)] = m_table[ij2index(i,j-1)];
                     // m_table[i][j][0] = m_table[i][j-1][0];
+                    if (DEBUG>1)
+                        std::cout<<"done filling "<<m_table[ij2index(i,j)]<<std::endl;
+
                 }
             }
             
@@ -212,8 +224,9 @@ int main(int argc, char* argv[])
     }
 
     if (SHOW_STEP)
-        std::cout<<"Done computing "<<input_sizeN*2<<std::endl;
+        std::cout<<"Done computing "<<input_sizeN*2<<" Ans="<<m_table[ij2index(0,2*input_sizeN-1)]<<std::endl;
 
+    // exit(1);
     if (DEBUG)
         for (int d=1;d<input_sizeN*2;++d)
         {
@@ -250,6 +263,8 @@ int main(int argc, char* argv[])
         tmp_stack.pop();
         if (DEBUG)
             std::cout<<"check "<<p.first<<" "<<p.second<<std::endl;
+        if(p.second<0)
+            exit(1);
 
         if (p.first==p.second)
         {
@@ -262,20 +277,29 @@ int main(int argc, char* argv[])
         {
             // case kj==ij
             if (DEBUG)
+                std::cout<<"[Backtrack] Case kj==ij"<<std::endl;
+            if (DEBUG)
                 std::cout<<"add chord ("<<p.first<<","<<p.second<<")"<<std::endl;
 
             result_chords[ind] = p.first;
             ++ind;
 
-            std::pair<int,int> pp;
-            pp.first = p.first+1;
-            pp.second = p.second-1;
-            if (DEBUG)
-                std::cout<<"add subp ("<<pp.first<<","<<pp.second<<")"<<std::endl;
-            tmp_stack.push(pp);
+            if(p.first!=(p.second-1))
+            {
+                std::pair<int,int> pp;
+                pp.first = p.first+1;
+                pp.second = p.second-1;
+                if (DEBUG)
+                    std::cout<<"[]add subp ("<<pp.first<<","<<pp.second<<")"<<std::endl;
+                tmp_stack.push(pp);
+            }
+
+            
 
         }else if (chords_k[p.second] > p.second || chords_k[p.second] < p.first){
             // kj k not in [i,j]
+            if (DEBUG)
+                std::cout<<"[Backtrack] Case kj k not in [i,j]"<<std::endl;
             std::pair<int,int> pp;
             pp.first = p.first;
             pp.second = p.second-1;
@@ -285,6 +309,8 @@ int main(int argc, char* argv[])
 
         }else{
             // kj k in [i,j]
+            if (DEBUG)
+                std::cout<<"[Backtrack] Case kj k in [i,j]"<<std::endl;
             int tmp = m_table[ij2index(p.first,chords_k[p.second]-1)] + 1 + m_table[ij2index(chords_k[p.second]+1,p.second-1)];
             if (m_table[ij2index(p.first,p.second-1)]<tmp)
             {
@@ -295,19 +321,25 @@ int main(int argc, char* argv[])
                 ++ind;
 
                 // m_table[ij2index(i,j)] = tmp;
+                if (p.first<=chords_k[p.second]-1)
+                {
+                    std::pair<int,int> pp;
+                    pp.first = p.first;
+                    pp.second = chords_k[p.second]-1;
+                    if (DEBUG)
+                        std::cout<<"add subp1 ("<<pp.first<<","<<pp.second<<")";
+                    tmp_stack.push(pp);
 
-                std::pair<int,int> pp;
-                pp.first = p.first;
-                pp.second = chords_k[p.second]-1;
-                if (DEBUG)
-                    std::cout<<"add subp1 ("<<pp.first<<","<<pp.second<<")";
-                tmp_stack.push(pp);
-
-                pp.first = chords_k[p.second]+1;
-                pp.second = p.second-1;
-                if (DEBUG)
-                    std::cout<<" subp2 ("<<pp.first<<","<<pp.second<<")"<<std::endl;
-                tmp_stack.push(pp);
+                }
+                if (chords_k[p.second]+1<=p.second-1)
+                {
+                    std::pair<int,int> pp;
+                    pp.first = chords_k[p.second]+1;
+                    pp.second = p.second-1;
+                    if (DEBUG)
+                        std::cout<<" subp2 ("<<pp.first<<","<<pp.second<<")"<<std::endl;
+                    tmp_stack.push(pp);
+                }
 
             }else
             {

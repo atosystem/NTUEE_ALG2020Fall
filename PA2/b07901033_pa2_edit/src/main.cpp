@@ -6,7 +6,7 @@
 
 #include <vector>
 
-#define DEBUG 0
+#define DEBUG 1
 #define SHOW_STEP 1
 
 unsigned long long int input_sizeN;
@@ -132,10 +132,11 @@ int main(int argc, char* argv[])
     // int result_chords[m_table[ij2index(0,2*input_sizeN-1)]];
     int ind = 0;
 
-    
+    std::cout<<"Start Computing"<<std::endl;
 
     std::stack< std::pair<int,int> > tmp_stack;
     std::vector<int> result_chords;
+    result_chords.reserve(input_sizeN);
 
     std::pair<int,int> p ;
     p.first = 0;
@@ -152,7 +153,7 @@ int main(int argc, char* argv[])
         if (DEBUG)
             std::cout<<"check "<<p.first<<" "<<p.second<<std::endl;
 
-        if (m_table[ij2index(p.first,p.second)] == -1)
+        if (m_table[ij2index(p.first,p.second)] != -1)
         {
             if (DEBUG)
                 std::cout<<"case calculated before"<<std::endl;
@@ -161,23 +162,25 @@ int main(int argc, char* argv[])
             continue;
         }
 
-        // if (p.first==p.second)
-        // {
-        //     if (DEBUG)
-        //         std::cout<<"skip base case"<<std::endl;
-        //     tmp_stack.pop();
-        //     continue;
-        // }
+        
         // backtrack cases
         if (chords_k[p.second] == p.first)
         {
             // case kj==ij
             if (DEBUG)
+                std::cout<<"Case kj==ij"<<std::endl;
+            if (m_table[ij2index(p.first+1,p.second-1)]!=-1)
+            {
+                m_table[ij2index(p.first,p.second)] = m_table[ij2index(p.first+1,p.second-1)] + 1;
+                tmp_stack.pop();
+                continue;
+            }
+            if (DEBUG)
                 std::cout<<"add chord ("<<p.first<<","<<p.second<<")"<<std::endl;
 
             // result_chords[ind] = p.first;
             result_chords.push_back(p.first);
-            // ++ind;
+            ++ind;
 
             std::pair<int,int> pp;
             pp.first = p.first+1;
@@ -185,58 +188,81 @@ int main(int argc, char* argv[])
             if (DEBUG)
                 std::cout<<"add subp ("<<pp.first<<","<<pp.second<<")"<<std::endl;
             
-            tmp_stack.pop();
+            
             tmp_stack.push(pp);
 
         }else if (chords_k[p.second] > p.second || chords_k[p.second] < p.first){
             // kj k not in [i,j]
+            if (DEBUG)
+                std::cout<<"Case kj k not in [i,j]"<<std::endl;
+            if (m_table[ij2index(p.first,p.second-1)]!=-1)
+            {
+                m_table[ij2index(p.first,p.second)] = m_table[ij2index(p.first,p.second-1)];
+                tmp_stack.pop();
+                continue;
+            }
             std::pair<int,int> pp;
             pp.first = p.first;
             pp.second = p.second-1;
             if (DEBUG)
                 std::cout<<"add subp ("<<pp.first<<","<<pp.second<<")"<<std::endl;
             
-            tmp_stack.pop();
+            
             tmp_stack.push(pp);
 
         }else{
             // kj k in [i,j]
-            int tmp = m_table[ij2index(p.first,chords_k[p.second]-1)] + 1 + m_table[ij2index(chords_k[p.second]+1,p.second-1)];
-            if (m_table[ij2index(p.first,p.second-1)]<tmp)
+            if (DEBUG)
+                std::cout<<"Case kj k in [i,j]"<<std::endl;
+            if (m_table[ij2index(p.first,chords_k[p.second]-1)]==-1)
             {
-                if (DEBUG)
-                    std::cout<<"add chord ("<<chords_k[p.second]<<","<<p.second<<")"<<std::endl;
-
-                result_chords[ind] = chords_k[p.second];
-                ++ind;
-
-                // m_table[ij2index(i,j)] = tmp;
-
                 std::pair<int,int> pp;
                 pp.first = p.first;
                 pp.second = chords_k[p.second]-1;
                 if (DEBUG)
                     std::cout<<"add subp1 ("<<pp.first<<","<<pp.second<<")";
                 tmp_stack.push(pp);
-
+            }
+            if (m_table[ij2index(chords_k[p.second]+1,p.second-1)]==-1)
+            {
+                std::pair<int,int> pp;
                 pp.first = chords_k[p.second]+1;
                 pp.second = p.second-1;
                 if (DEBUG)
                     std::cout<<" subp2 ("<<pp.first<<","<<pp.second<<")"<<std::endl;
                 tmp_stack.push(pp);
-
-            }else
+            }
+            if (m_table[ij2index(p.first,p.second-1)]==-1)
             {
-                // m_table[ij2index(p.first,p.second)] = m_table[ij2index(p.first,p.second-1)];
                 std::pair<int,int> pp;
                 pp.first = p.first;
                 pp.second = p.second-1;
                 if (DEBUG)
-                    std::cout<<"add subp ("<<pp.first<<","<<pp.second<<")"<<std::endl;;
+                    std::cout<<" subp3 ("<<pp.first<<","<<pp.second<<")"<<std::endl;
 
-                tmp_stack.pop();
                 tmp_stack.push(pp);
             }
+            if (m_table[ij2index(p.first,p.second-1)]!=-1 && m_table[ij2index(p.first,chords_k[p.second]-1)]!=-1 && m_table[ij2index(chords_k[p.second]+1,p.second-1)]!=-1)
+            {
+                
+                // m_table[ij2index(p.first,p.second)] = m_table[ij2index(p.first,p.second-1)];
+                int tmp = m_table[ij2index(p.first,chords_k[p.second]-1)] + 1 + m_table[ij2index(chords_k[p.second]+1,p.second-1)];
+                if (m_table[ij2index(p.first,p.second-1)]<tmp)
+                {
+                    if (DEBUG)
+                        std::cout<<"add chord ("<<chords_k[p.second]<<","<<p.second<<")"<<std::endl;
+
+                    result_chords.push_back(chords_k[p.second]);
+                    ++ind;
+                    m_table[ij2index(p.first,p.second)] = tmp;
+                }else
+                {
+                    // m_table[ij2index(p.first,p.second)] = m_table[ij2index(p.first,p.second-1)];
+                    m_table[ij2index(p.first,p.second)] = m_table[ij2index(p.first,p.second-1)];
+                }
+                tmp_stack.pop();
+            }
+            
         }
     }
 
